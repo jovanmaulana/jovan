@@ -1,0 +1,225 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMg2GSHO4pS+B1Qb9jkVSnX",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/jovanmaulana/jovan/blob/main/ATS%20PEMEROGRAMAN%20DASAR\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "w2YtaN-sxYCo",
+        "outputId": "ce48c298-4160-4e4b-ef3c-59ec6b86711b"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Energi harian = 3600 kWh\n",
+            "Capacity factor = 75.00%\n"
+          ]
+        }
+      ],
+      "source": [
+        "# nama:jovan antan maulana  nim:4232501047  kelas:rpe pagi b\n",
+        "# soal 2\n",
+        "\n",
+        "daya_kw = 450\n",
+        "jam = 8\n",
+        "energi_aktual = 7200\n",
+        "kapasitas_kw = 400\n",
+        "\n",
+        "energi = daya_kw * jam\n",
+        "\n",
+        "capacity_factor = (energi_aktual / (kapasitas_kw * 24)) * 100\n",
+        "\n",
+        "print(f\"Energi harian = {energi} kWh\")\n",
+        "print(f\"Capacity factor = {capacity_factor:.2f}%\")\n",
+        "# PENJELASAN  Program Python di atas digunakan untuk menghitungenergi listrik yang dihasilkan dalam\n",
+        " satuhari dan menentukan nilai capacity factor atau faktor kapasitas pembangkit listrik.\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Soal 4\n",
+        "\n",
+        "tekanan = [12.4, 13.1, 12.8, 14.2, 13.5]\n",
+        "\n",
+        "print(\"Tekanan pembacaan ke-2:\", tekanan[1])\n",
+        "\n",
+        "print(\"Dua pembacaan terakhir:\", tekanan[-2:])\n",
+        "\n",
+        "tekanan.append(13.9)\n",
+        "tekanan.append(12.6)\n",
+        "print(\"Jumlah data setelah penambahan:\", len(tekanan))\n",
+        "# PENJELASAN Program ini digunakan untuk menyimpan, membaca, dan menambahkan data tekanan menggunakan tipe data list pada Python"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "UxIOnBfX0UNJ",
+        "outputId": "8c6931c9-4d8f-458d-f598-298253111382"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Tekanan pembacaan ke-2: 13.1\n",
+            "Dua pembacaan terakhir: [14.2, 13.5]\n",
+            "Jumlah data setelah penambahan: 7\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Soal 6\n",
+        "\n",
+        "suhu = float(input(\"Masukkan suhu (C): \"))\n",
+        "tekanan = float(input(\"Masukkan tekanan (bar): \"))\n",
+        "\n",
+        "if suhu >= 550 or tekanan >= 14:\n",
+        "    print(\"STATUS: TRIP\")\n",
+        "elif suhu > 520 and tekanan > 12:\n",
+        "    print(\"STATUS: WARNING\")\n",
+        "else:\n",
+        "    print(\"STATUS: NORMAL\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "KYGquhiB1cMK",
+        "outputId": "e37ef921-579c-42e3-ab05-38da6d5a2d52"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Masukkan suhu (C): 450\n",
+            "Masukkan tekanan (bar): 14\n",
+            "STATUS: TRIP\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# soal 8\n",
+        "\n",
+        "volume = 100\n",
+        "\n",
+        "while volume > 0:\n",
+        "    volume -= 20\n",
+        "    print(f\"Volume: {volume} liter\")\n",
+        "\n",
+        "    if volume == 20:\n",
+        "        print(\"WARNING: Hampir kosong!\")\n",
+        "\n",
+        "print(\"TANGKI KOSONG - Pengosongan berhenti.\")\n",
+        "#PENEJLASAN Program ini menyimulasikan pengosongan tangki dari 100 liter hingga kosong,\n",
+        " berkurang 20 liter setiap proses, dan menampilkan peringatan saat tersisa 20 liter"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9avEwaDB2qo-",
+        "outputId": "88dfe8c3-0ecc-4608-b30f-5f013faccbf9"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Volume: 80 liter\n",
+            "Volume: 60 liter\n",
+            "Volume: 40 liter\n",
+            "Volume: 20 liter\n",
+            "WARNING: Hampir kosong!\n",
+            "Volume: 0 liter\n",
+            "TANGKI KOSONG - Pengosongan berhenti.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# soal 10\n",
+        "\n",
+        "data = [\"62.5\", \"58.0\", \"81.3\", \"N/A\", \"66.0\"]\n",
+        "jumlah_valid = 0\n",
+        "\n",
+        "for i in range(len(data)):\n",
+        "    n = i + 1\n",
+        "    try:\n",
+        "        nilai = float(data[i])\n",
+        "    except ValueError:\n",
+        "        print(f\"Titik {n}: data tidak valid - pemeriksaan dihentikan\")\n",
+        "        break\n",
+        "    jumlah_valid += 1\n",
+        "    if nilai > 70.0:\n",
+        "        print(f\"Warning: Titik {n} suhu bearing tinggi!\")\n",
+        "\n",
+        "print(f\"Jumlah data valid: {jumlah_valid}\")\n",
+        " #PENJELASAN Program ini digunakan untuk memeriksa suhu bearing. Data diubah menjadi angka, mendeteksi\n",
+        " suhu tinggi, dan menghentikan pemeriksaan jika terdapat data tidak valid."
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mkXgNKPs38JX",
+        "outputId": "c600d562-daed-4894-967e-2e5b1a3b71e0"
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Warning: Titik 3 suhu bearing tinggi!\n",
+            "Titik 4: data tidak valid - pemeriksaan dihentikan\n",
+            "Jumlah data valid: 3\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
