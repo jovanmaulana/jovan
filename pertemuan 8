@@ -1,0 +1,2575 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/jovanmaulana/jovan/blob/main/pertemuan%208\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "xlJf6Zm1vDFf"
+      },
+      "source": [
+        "# Lecture Notes — Week 6\n",
+        "\n",
+        "**RPE311 Basic Programming — Arrays and Their Processing**\n",
+        "\n",
+        "Arrays and their processing, step by step: what an array is, how it is stored in memory, its advantages and disadvantages, Python lists, reading and changing elements, looping, searching and filtering, 2D lists, then practice manipulating arrays of daily energy production data.\n",
+        "\n",
+        "Full lecture notes: https://blog2.muhveven.com/docs/power-plant-engineering/basic-programming/week-06/\n",
+        "\n",
+        "Run the cells in order from the top (Shift+Enter). The training data is **synthetic**."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LQPPcmaUvDFj"
+      },
+      "source": [
+        "## Material & Activities"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "UivkL34FvDFk"
+      },
+      "source": [
+        "> **How to use this page**\n",
+        ">\n",
+        "> Every code block has a **Run** button (and **Edit** to change the code). Work in small steps: read\n",
+        "> the idea, look at the picture, **predict** what the code prints, then run it. The same cells are\n",
+        "> in the Colab notebook. The order: tiny data first (5 values) so you can follow every step by eye,\n",
+        "> then bigger data (24 hours, 30 days) processed **without loops**, and finally **loops and\n",
+        "> conditions** with arrays."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "7bT9ivX5vDFm"
+      },
+      "source": [
+        "### Concept of arrays"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "BKad3aNVvDFm"
+      },
+      "source": [
+        "Before writing code, let us understand **what an array is**, how it is stored in the computer's\n",
+        "memory, and when arrays help and when they get in the way. This theory holds in almost every\n",
+        "programming language (C, C#, Java, Python), so it will keep paying off in later courses."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "-39PjVh0vDFn"
+      },
+      "source": [
+        "#### What is an array?"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "KGooj6VJvDFo"
+      },
+      "source": [
+        "An **array** is a data structure that stores **a collection of values of the same kind** under\n",
+        "**one name**, kept **in order**, where each value is reached by its **position number**, called the\n",
+        "**index**."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "1Gr2hMHXvDFp"
+      },
+      "source": [
+        "> **Short definition**\n",
+        ">\n",
+        "> Array = one name + many elements of one kind + a fixed order + access by index."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "45xMzevgvDFq"
+      },
+      "source": [
+        "| Term             | Meaning                                                  | Example for `temp = [28, 31, 30]` |\n",
+        "| ---------------- | -------------------------------------------------------- | --------------------------------- |\n",
+        "| **Element**      | One value inside the array                               | `28`, `31`, `30`                  |\n",
+        "| **Index**        | The element's position number, starting at **0**         | `31` is at index `1`              |\n",
+        "| **Length**       | How many elements there are                              | `len(temp)` = `3`                 |\n",
+        "| **Element type** | The kind of data of all elements (ideally the same)      | whole numbers (°C)                |\n",
+        "| **Dimension**    | How many indices point to one element (1D row, 2D table) | 1-dimensional                     |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "L7bGuRd2vDFr"
+      },
+      "source": [
+        "#### Arrays around us"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "V9BVk9W5vDFr"
+      },
+      "source": [
+        "- **Class scores**: 30 exam scores, one per student.\n",
+        "- **Sensor data**: turbine temperature logged every hour for 24 hours → an array of 24 elements.\n",
+        "- **Energy production**: daily energy delivered over a month → an array of 30 elements (this week's\n",
+        "  case study).\n",
+        "- **Tables**: scores of 3 students × 3 exams → a **2-dimensional** array (rows and columns).\n",
+        "- **Digital images**: pixels arranged in rows and columns → a 2-dimensional array of numbers."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "vIikOe5hvDFs"
+      },
+      "source": [
+        "#### How an array is stored in memory"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "zLV_r_RvvDFs"
+      },
+      "source": [
+        "In a classic array (for example in C or C#), the elements are stored **next to each other** in\n",
+        "memory. Suppose an array of 5 integers starts at address 1000 and each element takes 4 bytes:\n",
+        "\n",
+        "| Index          | 0    | 1    | 2    | 3    | 4    |\n",
+        "| -------------- | ---- | ---- | ---- | ---- | ---- |\n",
+        "| Memory address | 1000 | 1004 | 1008 | 1012 | 1016 |\n",
+        "\n",
+        "The computer does not search for an element; it simply **computes** its address:"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_MsRBhC_vDFs"
+      },
+      "source": [
+        "```text\n",
+        "address of element i = start address + i × size of one element\n",
+        "address of temp[3]   = 1000 + 3 × 4 = 1012\n",
+        "```\n",
+        "\n",
+        "This formula also explains **why the index starts at 0**: the index is the distance (offset) from\n",
+        "the first element, and the first element is 0 steps from the start. A Python list works in a\n",
+        "similar way: it stores a row of \"pointers\" to its values next to each other, so `a[i]` is fast too."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "dbBxpJZevDFt"
+      },
+      "source": [
+        "#### Advantages of arrays"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "hZq1s00-vDFt"
+      },
+      "source": [
+        "1. **One name for many values.** 30 scores fit in `scores`, not `score1` to `score30`, so the code\n",
+        "   is shorter and easier to read.\n",
+        "2. **Direct access by index.** Reading or changing `a[i]` is just as fast for the first element as\n",
+        "   for the 10,000th, because the address is computed, not searched for.\n",
+        "3. **Made for loops.** Totals, averages, maximums, searches, and charts all use the same loop, however\n",
+        "   many values there are.\n",
+        "4. **Tidy and efficient in memory.** Elements that sit next to each other are read quickly by the\n",
+        "   processor.\n",
+        "5. **The basis of other data structures.** Strings, tables (2D lists), images, signals, NumPy arrays,\n",
+        "   and Pandas DataFrames (Week 8) are all built on the array idea."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "tBdZlq8EvDFt"
+      },
+      "source": [
+        "#### Disadvantages of arrays"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "lsH23OK6vDFu"
+      },
+      "source": [
+        "1. **Fixed size (in classic arrays).** In C, C#, or Java the size is set when the array is created.\n",
+        "   Too large wastes memory; too small means the data does not fit.\n",
+        "2. **Inserting or removing in the middle is slow.** Because the elements must stay side by side,\n",
+        "   every element after that point has to be **shifted** one by one. Inserting at the front of a list\n",
+        "   of 1 million elements shifts 1 million elements.\n",
+        "3. **One kind of data only (in classic arrays).** All elements must have the same type; mixing names,\n",
+        "   numbers, and dates in one array makes processing hard.\n",
+        "4. **Finding a value without knowing its position means checking one by one** (linear search),\n",
+        "   unless the data is sorted.\n",
+        "5. **An index out of range is an error.** Python stops with `IndexError`; in languages such as C a\n",
+        "   program may even read random memory without any warning.\n",
+        "\n",
+        "| Operation on an array / list                | Speed               | Why                                    |\n",
+        "| ------------------------------------------- | ------------------- | -------------------------------------- |\n",
+        "| Reading or changing `a[i]`                  | Fast                | The address is computed from the index |\n",
+        "| Adding at the end (`append`)                | Usually fast        | No element needs to move               |\n",
+        "| Inserting / removing at the front or middle | Slow for large data | Later elements must be shifted         |\n",
+        "| Finding a value (`x in a`)                  | Slow for large data | Checked one by one                     |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "UZCJfHkcvDFu"
+      },
+      "source": [
+        "#### Classic arrays and Python lists"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "qKSmKUj5vDFu"
+      },
+      "source": [
+        "Python has no built-in \"array\" type like C or C#; a **list** takes that role and is more flexible.\n",
+        "This removes some of the disadvantages of arrays, but not all of them.\n",
+        "\n",
+        "| Property                | Classic array (C, C#, Java) | Python list                              |\n",
+        "| ----------------------- | --------------------------- | ---------------------------------------- |\n",
+        "| Size                    | Fixed when created          | Can grow and shrink (`append`, `pop`)    |\n",
+        "| Element type            | Must be the same            | May be mixed (in this course: one kind)  |\n",
+        "| First index             | 0                           | 0                                        |\n",
+        "| Access `a[i]`           | Fast                        | Fast                                     |\n",
+        "| Index from the end      | Not in C/Java               | Yes: `a[-1]` is the last element         |\n",
+        "| Insert/remove in middle | Slow (must shift)           | Still slow for large lists (also shifts) |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ChTtVI4DvDFv"
+      },
+      "source": [
+        "> **Discussion 6: Discuss: a good fit for an array or not?**\n",
+        ">\n",
+        "> In groups, name **three** pieces of power plant data that fit well in an array (hint: values\n",
+        "> recorded again and again, all of the same kind) and **one** that does not fit well. For each\n",
+        "> answer, name the advantage or disadvantage of arrays that matters most."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "nnf2fwuivDFv"
+      },
+      "source": [
+        "Now let us see, in code, the problem that arrays solve."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "BrvlbNTzvDFv"
+      },
+      "source": [
+        "#### Why arrays? The trouble with many variables"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "9qJyS0rOvDFv"
+      },
+      "source": [
+        "Suppose you have 5 test scores and want the average. With what you know so far, you would write one variable for each score:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 10,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "gVsvKInTvDFv",
+        "outputId": "9ce81485-00c3-4c93-d82d-280f406838ae"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Average: 76.0\n"
+          ]
+        }
+      ],
+      "source": [
+        "# many_variables.py\n",
+        "# Without an array: one variable per score\n",
+        "score1 = 80\n",
+        "score2 = 65\n",
+        "score3 = 90\n",
+        "score4 = 75\n",
+        "score5 = 70\n",
+        "\n",
+        "total = score1 + score2 + score3 + score4 + score5\n",
+        "print(\"Average:\", total / 5)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "exv6I65TvDFw"
+      },
+      "source": [
+        "It works, but only for exactly 5 scores. With 30 scores you would write 30 variables and a very long `+` line, and with 500 scores it is hopeless. The idea of an **array** solves this: keep all the scores **under one name**."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 9,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "H184XqBcvDFx",
+        "outputId": "189e206a-52e6-4eb7-fc2a-d4a6ec9f6019"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Average: 76.0\n"
+          ]
+        }
+      ],
+      "source": [
+        "# one_list.py\n",
+        "# With an array (a Python list): one name for all the scores\n",
+        "scores = [80, 65, 90, 75, 70]\n",
+        "\n",
+        "print(\"Average:\", sum(scores) / len(scores))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "tCP0vgdSvDFx"
+      },
+      "source": [
+        "The second program does not care whether there are 5 scores or 500: only the list changes, the calculation stays the same."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "D-iMuukEvDFx"
+      },
+      "source": [
+        "#### An array is a row of numbered boxes"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Om2OvHYYvDFy"
+      },
+      "source": [
+        "Picture a shelf with numbered boxes. The shelf has a **name** (`scores`), every box holds **one value**, and every box has a **position number** called the **index**.\n",
+        "\n",
+        "| index | 0   | 1   | 2   | 3   | 4   |\n",
+        "| ----- | --- | --- | --- | --- | --- |\n",
+        "| value | 80  | 65  | 90  | 75  | 70  |\n",
+        "\n",
+        "An array has four properties:\n",
+        "\n",
+        "| Property         | Meaning                                                           |\n",
+        "| ---------------- | ----------------------------------------------------------------- |\n",
+        "| **One name**     | All values are reached through the same name, here `scores`.      |\n",
+        "| **Ordered**      | The boxes keep their order: box 2 is always the third value.      |\n",
+        "| **Index from 0** | The first box is index `0`, the last of 5 boxes is index `4`.     |\n",
+        "| **Same kind**    | All values mean the same kind of thing (all scores, all °C, ...). |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "nQAURwMPvDFy"
+      },
+      "source": [
+        "> **Why does counting start at 0?**\n",
+        ">\n",
+        "> The index tells how many boxes you skip from the start. The first box needs no skipping, so its\n",
+        "> index is `0`. An array with 5 elements has indices 0 to 4, so the last index is always `len - 1`."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "PrXJGDqwvDFz"
+      },
+      "source": [
+        "In Python, the **list** plays the role of an array. A Python list can also grow and shrink, and it _can_ mix kinds, but in this course we keep each list to one kind of value. (In Week 8 you will meet NumPy arrays, which are much faster for big numeric data.)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "wfur0tgLvDFz"
+      },
+      "source": [
+        "### Arrays with Python lists"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "yaYJLLIbvDFz"
+      },
+      "source": [
+        "#### Creating a list and counting its elements"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XW-nMsbjvDFz"
+      },
+      "source": [
+        "Square brackets with values separated by commas create a list. `len()` tells how many elements it has."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 8,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "sjjZ5q7kvDF0",
+        "outputId": "a465e55c-b825-49f0-e283-2aef119f3421"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[80, 65, 90, 75, 70]\n",
+            "['rice', 'eggs', 'milk']\n",
+            "[]\n",
+            "scores has 5 elements\n",
+            "shopping has 3 elements\n",
+            "empty has 0 elements\n"
+          ]
+        }
+      ],
+      "source": [
+        "# create_list.py\n",
+        "scores = [80, 65, 90, 75, 70]               # 5 numbers\n",
+        "shopping = [\"rice\", \"eggs\", \"milk\"]          # 3 pieces of text\n",
+        "empty = []                                   # an empty list: no boxes yet\n",
+        "\n",
+        "print(scores)\n",
+        "print(shopping)\n",
+        "print(empty)\n",
+        "print(\"scores has\", len(scores), \"elements\")\n",
+        "print(\"shopping has\", len(shopping), \"elements\")\n",
+        "print(\"empty has\", len(empty), \"elements\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "mOrgT10-vDF0"
+      },
+      "source": [
+        "#### Reading an element by index"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "bqvLxQN1vDF0"
+      },
+      "source": [
+        "Write the list name and the index in square brackets. A **negative index** counts from the end: `-1` is the last element, `-2` the one before it.\n",
+        "\n",
+        "| index          | 0   | 1   | 2   | 3   | 4   |\n",
+        "| -------------- | --- | --- | --- | --- | --- |\n",
+        "| value          | 28  | 31  | 30  | 33  | 29  |\n",
+        "| negative index | -5  | -4  | -3  | -2  | -1  |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XvlobGo-vDF1"
+      },
+      "source": [
+        "> **Activity 6A: Predict, then run**\n",
+        ">\n",
+        "> Look at the table above (`temps = [28, 31, 30, 33, 29]`). Before you run the block below, write\n",
+        "> down what the last four `print` lines will show. Then run it and compare. Which ones surprised\n",
+        "> you?"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 7,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Z8YPIl8VvDF3",
+        "outputId": "62dd8f60-27f4-488a-b389-b4568160ffac"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "temps[0] = 28\n",
+            "temps[4] = 29\n",
+            "temps[-1] = 29\n",
+            "31\n",
+            "33\n",
+            "29\n",
+            "63\n"
+          ]
+        }
+      ],
+      "source": [
+        "# read_index.py\n",
+        "temps = [28, 31, 30, 33, 29]    # temperature (°C) on 5 days\n",
+        "\n",
+        "print(\"temps[0] =\", temps[0])   # the first element\n",
+        "print(\"temps[4] =\", temps[4])   # the last element (len - 1)\n",
+        "print(\"temps[-1] =\", temps[-1]) # negative index: counted from the end\n",
+        "\n",
+        "# --- predict first, then run ---\n",
+        "print(temps[1])\n",
+        "print(temps[-2])\n",
+        "print(temps[len(temps) - 1])\n",
+        "print(temps[2] + temps[3])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "v4L2pM8JvDF4"
+      },
+      "source": [
+        "#### Slicing: taking part of a list"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "0g0-Uc7xvDF4"
+      },
+      "source": [
+        "`list[a:b]` gives a **new list** from index `a` up to, but **not including**, index `b`. Leave `a` out to start at the beginning, leave `b` out to go to the end.\n",
+        "\n",
+        "| index | 0     | 1     | 2     | 3     | 4     | 5     | 6     |\n",
+        "| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |\n",
+        "| value | \"Mon\" | \"Tue\" | \"Wed\" | \"Thu\" | \"Fri\" | \"Sat\" | \"Sun\" |"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 6,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "HvVmmTp0vDF4",
+        "outputId": "d2b7f743-3309-4f4b-f5a0-1198a1f363e4"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "['Tue', 'Wed', 'Thu']\n",
+            "['Mon', 'Tue', 'Wed']\n",
+            "['Fri', 'Sat', 'Sun']\n",
+            "['Sat', 'Sun']\n",
+            "['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']\n"
+          ]
+        }
+      ],
+      "source": [
+        "# slicing.py\n",
+        "days = [\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"]\n",
+        "\n",
+        "print(days[1:4])    # index 1, 2, 3 (index 4 is NOT included)\n",
+        "print(days[:3])     # from the start up to index 2\n",
+        "print(days[4:])     # from index 4 to the end\n",
+        "print(days[-2:])    # the last two elements\n",
+        "print(days[:])      # everything: a copy of the whole list"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "h9STOuSAvDF5"
+      },
+      "source": [
+        "> **Check your slice by counting**\n",
+        ">\n",
+        "> The number of elements in `days[a:b]` is simply `b - a`. For example `days[1:4]` has 4 - 1 = 3\n",
+        "> elements."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Zs_K50vivDF5"
+      },
+      "source": [
+        "#### Changing, adding, and removing elements"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "5q6K1NTNvDF5"
+      },
+      "source": [
+        "A list can change after it is created: assign to an index to **replace** an element, and use the list methods to add or remove elements.\n",
+        "\n",
+        "| Operation        | What it does                                                    |\n",
+        "| ---------------- | --------------------------------------------------------------- |\n",
+        "| `a[i] = x`       | replace the element at index `i`                                |\n",
+        "| `a.append(x)`    | add `x` at the **end**                                          |\n",
+        "| `a.insert(i, x)` | add `x` at index `i`; the elements after it shift one place     |\n",
+        "| `a.remove(x)`    | remove the **first** element equal to `x`                       |\n",
+        "| `a.pop()`        | remove the **last** element and give it back (`a.pop(i)`: at i) |\n",
+        "| `x in a`         | `True` if `x` is somewhere in the list, otherwise `False`       |"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 11,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "aO1Lpy_2vDF6",
+        "outputId": "aa40d94b-c72d-47a6-f4b3-f899b7a288c1"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "start        : ['rice', 'eggs', 'milk']\n",
+            "after change : ['rice', 'tofu', 'milk']\n",
+            "after append : ['rice', 'tofu', 'milk', 'tea']\n",
+            "after insert : ['salt', 'rice', 'tofu', 'milk', 'tea']\n",
+            "after remove : ['salt', 'tofu', 'milk', 'tea']\n",
+            "popped       : tea\n",
+            "after pop    : ['salt', 'tofu', 'milk']\n",
+            "tofu in list? True\n",
+            "rice in list? False\n"
+          ]
+        }
+      ],
+      "source": [
+        "# change_list.py\n",
+        "shopping = [\"rice\", \"eggs\", \"milk\"]\n",
+        "print(\"start        :\", shopping)\n",
+        "\n",
+        "shopping[1] = \"tofu\"          # replace the content of box 1\n",
+        "print(\"after change :\", shopping)\n",
+        "\n",
+        "shopping.append(\"tea\")        # a new box at the end\n",
+        "print(\"after append :\", shopping)\n",
+        "\n",
+        "shopping.insert(0, \"salt\")    # a new box at index 0; the others shift right\n",
+        "print(\"after insert :\", shopping)\n",
+        "\n",
+        "shopping.remove(\"rice\")       # remove the first \"rice\"\n",
+        "print(\"after remove :\", shopping)\n",
+        "\n",
+        "last = shopping.pop()         # remove the LAST element and give it back\n",
+        "print(\"popped       :\", last)\n",
+        "print(\"after pop    :\", shopping)\n",
+        "\n",
+        "print(\"tofu in list?\", \"tofu\" in shopping)\n",
+        "print(\"rice in list?\", \"rice\" in shopping)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "TVGzh2v0vDF6"
+      },
+      "source": [
+        "> **Activity 6B: Predict the final list**\n",
+        ">\n",
+        "> For `nums = [10, 20, 30]`, the next block runs `nums.append(40)`, `nums.insert(1, 15)`, and\n",
+        "> `nums.remove(30)`. Write down the final list and `len(nums)`, then run it."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 4,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "MLpJFj5ZvDF6",
+        "outputId": "a959c306-7ce8-4fee-b27d-9f2f445666a7"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[10, 15, 20, 40]\n",
+            "4\n"
+          ]
+        }
+      ],
+      "source": [
+        "# predict_edit.py\n",
+        "nums = [10, 20, 30]\n",
+        "nums.append(40)\n",
+        "nums.insert(1, 15)\n",
+        "nums.remove(30)\n",
+        "print(nums)\n",
+        "print(len(nums))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "iJ1i-bL2vDF7"
+      },
+      "source": [
+        "#### IndexError: stepping off the end"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "QILQh2novDF7"
+      },
+      "source": [
+        "An array of 5 elements has indices 0 to 4. Asking for index 5 means a box that does not exist, and Python stops with an **IndexError**. It is the most common mistake with arrays, and it nearly always comes from forgetting that the last index is `len(array) - 1`."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 12,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "RY2OCW9EvDF7",
+        "outputId": "13e94cc9-0db7-4273-dbc3-badff7e1a6cc"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "valid indices: 0 to 4\n",
+            "IndexError: list index out of range\n",
+            "last: 29 or simply 29\n",
+            "empty list has 0 elements\n"
+          ]
+        }
+      ],
+      "source": [
+        "# index_error.py\n",
+        "temps = [28, 31, 30, 33, 29]\n",
+        "print(\"valid indices: 0 to\", len(temps) - 1)\n",
+        "\n",
+        "try:\n",
+        "    print(temps[5])                 # there is no box 5!\n",
+        "except IndexError as error:\n",
+        "    print(\"IndexError:\", error)\n",
+        "\n",
+        "# Safe ways to reach the last element, however long the list is\n",
+        "print(\"last:\", temps[len(temps) - 1], \"or simply\", temps[-1])\n",
+        "\n",
+        "# An empty list has no valid index at all\n",
+        "empty = []\n",
+        "print(\"empty list has\", len(empty), \"elements\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "C5RbtLJjvDF8"
+      },
+      "source": [
+        "> **Activity 6C: Find the bug**\n",
+        ">\n",
+        "> `prices = [12, 15, 9]` has 3 elements. A student wants the last price and writes\n",
+        "> `prices[len(prices)]`. Predict what happens, then run it inside `try/except` (edit the block above\n",
+        "> if you like) and write the corrected line."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "FPAuIImkvDF9"
+      },
+      "source": [
+        "### Manipulating arrays without loops"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "22bboMD3vDF9"
+      },
+      "source": [
+        "Before writing loops yourself, get to know Python's built-in tools that work on **a whole array at once**. Inside, Python still checks the elements one by one, but you do not have to write it. The data is now **bigger**: 24 values, then 30 values. Every block continues the previous one; the data is repeated in each block so that it runs on its own.\n",
+        "\n",
+        "| Question                     | Tool (no loop)                    | Result                          |\n",
+        "| ---------------------------- | --------------------------------- | ------------------------------- |\n",
+        "| How many values?             | `len(a)`                          | a whole number                  |\n",
+        "| Total and average?           | `sum(a)`, `sum(a) / len(a)`       | a number                        |\n",
+        "| Highest and lowest?          | `max(a)`, `min(a)`                | an element value                |\n",
+        "| At which position?           | `a.index(x)`                      | the **first** index holding `x` |\n",
+        "| How many times? Is it there? | `a.count(x)`, `x in a`            | a count, `True`/`False`         |\n",
+        "| Part of the data?            | `a[start:stop:step]`              | a **new** list                  |\n",
+        "| Sorted?                      | `sorted(a)`, `a.sort()`           | a new list / the list itself    |\n",
+        "| A list without typing it?    | `list(range(1, 31))`, `[24] * 30` | a new list                      |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "tgjQoIoYvDF-"
+      },
+      "source": [
+        "#### 24-hour data: turbine bearing temperature"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "nMIvmkTevDF-"
+      },
+      "source": [
+        "A sensor records the turbine bearing temperature (°C) **every hour** for one day, starting at 00:00. The result is an array of **24 elements**. The data is written **6 values per line** so it is easy to count, and because recording starts at 00:00, **the index equals the hour**: `temps[14]` is the temperature at 14:00."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 13,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "XKsZjf_7vDF-",
+        "outputId": "e21e62df-8bc0-41e4-f2f1-aae9069ca63f"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Values : 24\n",
+            "00:00  : 61 °C\n",
+            "14:00  : 75 °C\n",
+            "23:00  : 62 °C\n"
+          ]
+        }
+      ],
+      "source": [
+        "# temps_24h.py\n",
+        "# Turbine bearing temperature (°C), one value per hour\n",
+        "temps = [\n",
+        "    61, 60, 60, 59, 59, 60,   # 00:00–05:00\n",
+        "    63, 66, 69, 71, 72, 73,   # 06:00–11:00\n",
+        "    74, 74, 75, 74, 73, 72,   # 12:00–17:00\n",
+        "    70, 68, 66, 64, 63, 62,   # 18:00–23:00\n",
+        "]\n",
+        "\n",
+        "print(\"Values :\", len(temps))           # 24 elements: one per hour\n",
+        "print(\"00:00  :\", temps[0], \"°C\")       # index 0 = the first element\n",
+        "print(\"14:00  :\", temps[14], \"°C\")      # index = hour, because recording starts at 00:00\n",
+        "print(\"23:00  :\", temps[-1], \"°C\")      # -1 = the last element"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ioAChLDnvDF_"
+      },
+      "source": [
+        "#### Cutting by period with slicing"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MeVx_3cmvDF_"
+      },
+      "source": [
+        "One day is split into four 6-hour periods. `temps[6:12]` takes indices 6 to 11 (06:00–11:00); index **12 is not included**. The third number is the **step**: `temps[::3]` takes every 3 hours, and a step of **-1** reverses the order."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 14,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9Cb_n4v7vDGA",
+        "outputId": "821743db-46d7-429a-a59f-764b158782aa"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Morning     : [63, 66, 69, 71, 72, 73]\n",
+            "Midday      : [74, 74, 75, 74, 73, 72]\n",
+            "Every 3 h   : [61, 59, 63, 71, 74, 74, 70, 64]\n",
+            "Last 6 hours: [70, 68, 66, 64, 63, 62]\n",
+            "Reversed    : [62, 63, 64, 66]\n",
+            "Lengths     : 6 6 6 6\n"
+          ]
+        }
+      ],
+      "source": [
+        "# periods.py\n",
+        "temps = [\n",
+        "    61, 60, 60, 59, 59, 60,   # 00:00–05:00\n",
+        "    63, 66, 69, 71, 72, 73,   # 06:00–11:00\n",
+        "    74, 74, 75, 74, 73, 72,   # 12:00–17:00\n",
+        "    70, 68, 66, 64, 63, 62,   # 18:00–23:00\n",
+        "]\n",
+        "\n",
+        "night = temps[0:6]       # 00:00–05:00 (index 6 not included)\n",
+        "morning = temps[6:12]    # 06:00–11:00\n",
+        "midday = temps[12:18]    # 12:00–17:00\n",
+        "evening = temps[18:]     # empty stop = up to the last element\n",
+        "\n",
+        "print(\"Morning     :\", morning)\n",
+        "print(\"Midday      :\", midday)\n",
+        "print(\"Every 3 h   :\", temps[::3])       # step 3: indices 0, 3, 6, ..., 21\n",
+        "print(\"Last 6 hours:\", temps[-6:])       # the last 6 elements\n",
+        "print(\"Reversed    :\", temps[::-1][:4])  # [::-1] reverses, then [:4] takes the first 4\n",
+        "print(\"Lengths     :\", len(night), len(morning), len(midday), len(evening))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "WQ8DFt7UvDGA"
+      },
+      "source": [
+        "#### Summarising: average, highest, lowest, range"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "3Bp8w1dMvDGB"
+      },
+      "source": [
+        "Built-in functions summarise a whole array in one line. To know **at what hour** the highest temperature happened, combine `max()` with `index()`: `index()` gives its position, and in this data the position is the hour."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 15,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-u8IArtbvDGB",
+        "outputId": "d7e13acf-2058-479d-cda7-25e9fabb7f05"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Average : 67.0 °C\n",
+            "Highest : 75 °C\n",
+            "Lowest  : 59 °C\n",
+            "Range   : 16 °C\n",
+            "Hottest at 14:00\n",
+            "Midday average: 73.7 °C\n"
+          ]
+        }
+      ],
+      "source": [
+        "# temps_summary.py\n",
+        "temps = [\n",
+        "    61, 60, 60, 59, 59, 60,   # 00:00–05:00\n",
+        "    63, 66, 69, 71, 72, 73,   # 06:00–11:00\n",
+        "    74, 74, 75, 74, 73, 72,   # 12:00–17:00\n",
+        "    70, 68, 66, 64, 63, 62,   # 18:00–23:00\n",
+        "]\n",
+        "\n",
+        "average = sum(temps) / len(temps)              # total divided by the number of values\n",
+        "print(\"Average :\", round(average, 1), \"°C\")    # round(..., 1): one decimal place\n",
+        "print(\"Highest :\", max(temps), \"°C\")\n",
+        "print(\"Lowest  :\", min(temps), \"°C\")\n",
+        "print(\"Range   :\", max(temps) - min(temps), \"°C\")   # highest - lowest\n",
+        "\n",
+        "hot_hour = temps.index(max(temps))             # POSITION of the highest = the hour\n",
+        "print(\"Hottest at\", str(hot_hour) + \":00\")\n",
+        "print(\"Midday average:\", round(sum(temps[12:18]) / 6, 1), \"°C\")   # slicing + sum"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "bfNZ8iOkvDGB"
+      },
+      "source": [
+        "#### Searching: is it there, how many times, where"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "QgiFzvYBvDGC"
+      },
+      "source": [
+        "`x in a` answers **whether it is there**, `a.count(x)` counts **how many times**, and `a.index(x)` gives the **first** position."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 16,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "JNKJmfJivDGC",
+        "outputId": "49633134-8756-4ab2-b142-420c308e41c6"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "True\n",
+            "False\n",
+            "74 °C recorded 3 times\n",
+            "First time at 74 °C: 12:00\n"
+          ]
+        }
+      ],
+      "source": [
+        "# search_temps.py\n",
+        "temps = [\n",
+        "    61, 60, 60, 59, 59, 60,   # 00:00–05:00\n",
+        "    63, 66, 69, 71, 72, 73,   # 06:00–11:00\n",
+        "    74, 74, 75, 74, 73, 72,   # 12:00–17:00\n",
+        "    70, 68, 66, 64, 63, 62,   # 18:00–23:00\n",
+        "]\n",
+        "\n",
+        "print(75 in temps)                         # True: it reached 75 °C\n",
+        "print(80 in temps)                         # False: it never reached 80 °C\n",
+        "print(\"74 °C recorded\", temps.count(74), \"times\")\n",
+        "print(\"First time at 74 °C:\", str(temps.index(74)) + \":00\")   # FIRST position"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "PbGMFifGvDGD"
+      },
+      "source": [
+        "> **index() needs the value to exist**\n",
+        ">\n",
+        "> `temps.index(80)` stops the program with a `ValueError`, because 80 is not in the list. Check with\n",
+        "> `80 in temps` first when you are not sure."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "o82NFgWzvDGD"
+      },
+      "source": [
+        "#### Sorting without breaking the original data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "u6cxcEojvDGE"
+      },
+      "source": [
+        "`sorted(a)` makes a **new** sorted list; the hourly order in `temps` stays intact. `a.sort()` sorts **the list itself**, so use it on a copy (`.copy()`). From sorted data the middle value (**median**) is easy to read: for 24 values, the median is the average of the two middle values (indices 11 and 12)."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 17,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1V57jeSavDGE",
+        "outputId": "a9ae10c9-b418-4cc7-a032-b13f70b0c658"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Lowest 3 : [59, 59, 60]\n",
+            "Highest 3: [74, 74, 75]\n",
+            "Original : [61, 60, 60]\n",
+            "Median   : 67.0 °C\n",
+            "Largest first: [75, 74, 74, 74, 73]\n"
+          ]
+        }
+      ],
+      "source": [
+        "# sort_temps.py\n",
+        "temps = [\n",
+        "    61, 60, 60, 59, 59, 60,   # 00:00–05:00\n",
+        "    63, 66, 69, 71, 72, 73,   # 06:00–11:00\n",
+        "    74, 74, 75, 74, 73, 72,   # 12:00–17:00\n",
+        "    70, 68, 66, 64, 63, 62,   # 18:00–23:00\n",
+        "]\n",
+        "\n",
+        "ordered = sorted(temps)                # a NEW sorted list\n",
+        "print(\"Lowest 3 :\", ordered[:3])\n",
+        "print(\"Highest 3:\", ordered[-3:])\n",
+        "print(\"Original :\", temps[:3])         # unchanged: still in hourly order\n",
+        "\n",
+        "median = (ordered[11] + ordered[12]) / 2   # 24 values: the two in the middle\n",
+        "print(\"Median   :\", median, \"°C\")\n",
+        "\n",
+        "copy = temps.copy()                    # copy first...\n",
+        "copy.sort(reverse=True)                # ...because sort() changes the list itself\n",
+        "print(\"Largest first:\", copy[:5])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "f1n1kPQsvDGF"
+      },
+      "source": [
+        "> **Activity 6D: Predict, then run**\n",
+        ">\n",
+        "> With the 24-hour `temps` data above, predict the result of `temps[6:12:2]`, `len(temps[::3])`,\n",
+        "> `temps[-1] - temps[0]`, and `sorted(temps)[0]`. Write down your guesses, then check them by adding\n",
+        "> `print` lines to one of the blocks."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "vM293jL6vDGG"
+      },
+      "source": [
+        "#### 30-day data: daily plant energy"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Wnv1lrZlvDGG"
+      },
+      "source": [
+        "Now even bigger data: the energy sent out each day by a fictional 330 MW coal-fired unit in November 2026 (synthetic training data), **30 elements**, one per day. 1 November 2026 is a Sunday.\n",
+        "\n",
+        "| index | 0     | 1     | 2     | 3     | 4     | 5     | 6     | ... | 29     |\n",
+        "| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | --- | ------ |\n",
+        "| day   | 1 Nov | 2 Nov | 3 Nov | 4 Nov | 5 Nov | 6 Nov | 7 Nov | ... | 30 Nov |\n",
+        "| MWh   | 5576  | 6098  | 6078  | 6095  | 6074  | 6077  | 5564  | ... | 6062   |\n",
+        "\n",
+        "Two companion arrays are made **without typing 30 values**: `list(range(1, 31))` gives the day numbers 1 to 30 (`range` stops **before** 31), and `[24] * 30` gives thirty 24s (full run hours). All three are **parallel arrays**: the same index means the same day."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 18,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "69VmJZwfvDGH",
+        "outputId": "db8d2e46-0e48-46a4-a4f4-8088f8c6db37"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "30 30 30\n",
+            "Day 17 : 3592 MWh, 18 h\n",
+            "Run hours, days 15–19: [24, 24, 18, 24, 24]\n"
+          ]
+        }
+      ],
+      "source": [
+        "# data_30_days.py\n",
+        "# Energy sent out per day, 1–30 November 2026 (MWh), 10 days per line\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,   # days 1–10\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,   # days 11–20\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,   # days 21–30\n",
+        "]\n",
+        "days = list(range(1, 31))     # [1, 2, ..., 30]\n",
+        "run_hours = [24] * 30         # 30 elements, each 24\n",
+        "run_hours[16] = 18            # day 17 (index 16) ran only 18 hours\n",
+        "\n",
+        "print(len(energy), len(days), len(run_hours))     # all three are 30\n",
+        "print(\"Day 17 :\", energy[16], \"MWh,\", run_hours[16], \"h\")\n",
+        "print(\"Run hours, days 15–19:\", run_hours[14:19])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "mTyh6L26vDGH"
+      },
+      "source": [
+        "#### Summarising the month and cutting by week"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "HfAzs1-FvDGI"
+      },
+      "source": [
+        "Every tool from the 24-hour data works the same on 30 days. With `index()`, the position of the highest value reads the **day number** from the parallel array `days`. The **capacity factor** is the actual energy divided by the maximum energy if the unit ran at 100% all month (330 MW × 24 h × 30 days)."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 19,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "DTR6ywsYvDGI",
+        "outputId": "fb61c343-9ee1-46e7-c43a-b1483705524c"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Total   : 175404 MWh\n",
+            "Average : 5847 MWh/day\n",
+            "Highest : day 24 - 6135 MWh\n",
+            "Lowest  : day 17 - 3592 MWh\n",
+            "Capacity factor: 73.8 %\n",
+            "Week 1  : 41562 MWh\n",
+            "Week 3  : 39077 MWh\n",
+            "Sundays : [5576, 5552, 5566, 5571, 5575]\n"
+          ]
+        }
+      ],
+      "source": [
+        "# month_summary.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,   # days 1–10\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,   # days 11–20\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,   # days 21–30\n",
+        "]\n",
+        "days = list(range(1, 31))\n",
+        "\n",
+        "total = sum(energy)\n",
+        "print(\"Total   :\", total, \"MWh\")\n",
+        "print(\"Average :\", round(total / len(energy)), \"MWh/day\")\n",
+        "\n",
+        "i_max = energy.index(max(energy))     # position of the highest value\n",
+        "i_min = energy.index(min(energy))\n",
+        "print(\"Highest : day\", days[i_max], \"-\", energy[i_max], \"MWh\")   # days[i] = day number\n",
+        "print(\"Lowest  : day\", days[i_min], \"-\", energy[i_min], \"MWh\")\n",
+        "\n",
+        "cf = total / (330 * 24 * len(energy)) * 100   # actual ÷ maximum × 100\n",
+        "print(\"Capacity factor:\", round(cf, 1), \"%\")\n",
+        "\n",
+        "print(\"Week 1  :\", sum(energy[0:7]), \"MWh\")     # indices 0–6 = days 1–7\n",
+        "print(\"Week 3  :\", sum(energy[14:21]), \"MWh\")   # indices 14–20 = days 15–21\n",
+        "print(\"Sundays :\", energy[0::7])                # step 7: days 1, 8, 15, 22, 29"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "EEYWwzFSvDGJ"
+      },
+      "source": [
+        "#### Changing the data: correct, add, take out"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LHt2mkmOvDGJ"
+      },
+      "source": [
+        "The operator finds that the day 17 meter reading was wrong (the correct value is 3,600 MWh), and a 1 December value slipped in and is taken out again. Inserting and deleting in the middle are practised on a **small copy** so the real data stays intact."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 20,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "hnYecwMEvDGJ",
+        "outputId": "220487ab-2058-4095-9c11-322e91fb7b2d"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Length: 31 | last 3: [5575, 6062, 6050]\n",
+            "Removed: 6050 | length: 30\n",
+            "[5576, 6098, 9999, 6078, 6095, 6074]\n",
+            "[5576, 6098, 6078, 6074]\n",
+            "Original unchanged: [5576, 6098, 6078, 6095, 6074]\n"
+          ]
+        }
+      ],
+      "source": [
+        "# change_energy.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,   # days 1–10\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,   # days 11–20\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,   # days 21–30\n",
+        "]\n",
+        "\n",
+        "energy[16] = 3600              # replace an element through its index\n",
+        "energy.append(6050)            # add one element at the END (1 December)\n",
+        "print(\"Length:\", len(energy), \"| last 3:\", energy[-3:])\n",
+        "\n",
+        "removed = energy.pop()         # take out the last element, keeping its value\n",
+        "print(\"Removed:\", removed, \"| length:\", len(energy))\n",
+        "\n",
+        "sample = energy[0:5]           # a small copy: slicing always makes a NEW list\n",
+        "sample.insert(2, 9999)         # insert at index 2; the rest shift right\n",
+        "print(sample)\n",
+        "del sample[2]                  # delete by POSITION\n",
+        "sample.remove(6095)            # delete by VALUE (the first one found)\n",
+        "print(sample)\n",
+        "print(\"Original unchanged:\", energy[0:5])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_Gi4VNrXvDGK"
+      },
+      "source": [
+        "#### Joining and copying"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "YjAoGvEgvDGK"
+      },
+      "source": [
+        "`+` joins two lists into a **new** list, `extend` adds to **the list itself**, and `*` repeats a list. Careful: `b = a` is **not** a copy, only a second name for the same list; a real copy is made with `a.copy()`."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 21,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "38V7vBMovDGL",
+        "outputId": "e4212cdc-1f79-4826-e068-073609e05f10"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Two weeks: 14 days\n",
+            "Week 1   : 9 elements, ending [5500, 5600]\n",
+            "Target   : [5800, 5800, 5800, 5800, 5800, 5800, 5800]\n",
+            "a: [1, 2, 3, 4]  b: [1, 2, 3, 4]  c: [1, 2, 3, 4, 5]\n"
+          ]
+        }
+      ],
+      "source": [
+        "# join_copy.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,   # days 1–10\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,   # days 11–20\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,   # days 21–30\n",
+        "]\n",
+        "\n",
+        "week1 = energy[0:7]\n",
+        "week2 = energy[7:14]\n",
+        "two_weeks = week1 + week2           # + makes a NEW list\n",
+        "print(\"Two weeks:\", len(two_weeks), \"days\")\n",
+        "\n",
+        "week1.extend([5500, 5600])          # extend changes week1 itself\n",
+        "print(\"Week 1   :\", len(week1), \"elements, ending\", week1[-2:])\n",
+        "\n",
+        "target = [5800] * 7                 # a list of seven 5800s\n",
+        "print(\"Target   :\", target)\n",
+        "\n",
+        "a = [1, 2, 3]\n",
+        "b = a                               # NOT a copy: a second name, the SAME list\n",
+        "b.append(4)\n",
+        "c = a.copy()                        # a real copy (a new list)\n",
+        "c.append(5)\n",
+        "print(\"a:\", a, \" b:\", b, \" c:\", c)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "NGkYsb4tvDGL"
+      },
+      "source": [
+        "> **Activity 6E: Copy or not?**\n",
+        ">\n",
+        "> Without running the code, predict what `x`, `y`, and `z` hold after these lines, then check with\n",
+        "> the block above: `x = [10, 20, 30]`, `y = x`, `z = x[:]`, `y.append(40)`, `z.append(50)`,\n",
+        "> `x.insert(0, 5)`. Why is `z` different?"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "CWBj7-79vDGM"
+      },
+      "source": [
+        "### Loops and conditions with arrays"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aUT8s4-evDGM"
+      },
+      "source": [
+        "Built-in functions answer the common questions: total, highest, position, order. But many questions have **their own condition**: which days were below target? when did the value drop sharply from the day before? For those we write our own **loop** (`for`) and decide with a **condition** (`if`). We go back to tiny data first so every step can be followed by eye, then apply it to the 30-day data.\n",
+        "\n",
+        "**Sequential processing** means visiting the elements **one at a time, in order, from index 0 to the last**, while keeping a running result. Almost every analysis of data in a list uses this pattern, so we practise it on tiny data first."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "KhYnG5WPvDGM"
+      },
+      "source": [
+        "#### Looping over a list: two ways"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "O9-_T6PrvDGN"
+      },
+      "source": [
+        "The **for-each** loop hands you each _value_. The **by-position** loop hands you each _index_ `i`, so you can also reach neighbours and know where you are. `range(5)` produces 0, 1, 2, 3, 4, so `range(len(scores))` produces exactly the valid indices."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 22,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "k5K2xRkXvDGN",
+        "outputId": "31d90c96-d474-48fb-c4df-0fccc48a7e26"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "range(5) gives: [0, 1, 2, 3, 4]\n",
+            "score: 80\n",
+            "score: 65\n",
+            "score: 90\n",
+            "score: 75\n",
+            "score: 70\n",
+            "index 0 holds 80\n",
+            "index 1 holds 65\n",
+            "index 2 holds 90\n",
+            "index 3 holds 75\n",
+            "index 4 holds 70\n"
+          ]
+        }
+      ],
+      "source": [
+        "# loop_two_ways.py\n",
+        "scores = [80, 65, 90, 75, 70]\n",
+        "\n",
+        "print(\"range(5) gives:\", list(range(5)))\n",
+        "\n",
+        "# 1) for-each: take each VALUE in turn\n",
+        "for score in scores:\n",
+        "    print(\"score:\", score)\n",
+        "\n",
+        "# 2) by position: i is the INDEX, scores[i] is the value\n",
+        "for i in range(len(scores)):\n",
+        "    print(\"index\", i, \"holds\", scores[i])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "KEy-xMOMvDGO"
+      },
+      "source": [
+        "> **Which one to use?**\n",
+        ">\n",
+        "> Use **for-each** when you only need the values. Use **range(len(...))** when you need the position\n",
+        "> too: for the day number, for comparing with the previous element, or for changing elements."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "7SNZzjdLvDGO"
+      },
+      "source": [
+        "#### The accumulator pattern: total, average, count"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Q0GA2jNZvDGO"
+      },
+      "source": [
+        "An **accumulator** is a variable that starts at a neutral value (0) and is updated at every step of the loop. After the loop it holds the answer.\n",
+        "\n",
+        "| step  | element | running total |\n",
+        "| ----- | ------- | ------------- |\n",
+        "| start | -       | 0             |\n",
+        "| 1     | 80      | 80            |\n",
+        "| 2     | 65      | 145           |\n",
+        "| 3     | 90      | 235           |"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "esdN7EGzvDGP"
+      },
+      "source": [
+        "> **Activity 6F: Predict, then run**\n",
+        ">\n",
+        "> Continue the table by hand for the last two elements (75 and 70). What are the final total and the\n",
+        "> average? How many scores are 75 or higher? Then run the block."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 23,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "G2uLNd2pvDGP",
+        "outputId": "641526ec-d6fc-45c4-b2b1-14f191aa289d"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "running total: 80\n",
+            "running total: 145\n",
+            "running total: 235\n",
+            "running total: 310\n",
+            "running total: 380\n",
+            "Total   : 380\n",
+            "Average : 76.0\n",
+            "Scores >= 75: 3 of 5\n"
+          ]
+        }
+      ],
+      "source": [
+        "# accumulator.py\n",
+        "scores = [80, 65, 90, 75, 70]\n",
+        "\n",
+        "total = 0                    # accumulator: starts at zero\n",
+        "count_pass = 0               # a counter is an accumulator that adds 1\n",
+        "for score in scores:\n",
+        "    total = total + score    # add each element\n",
+        "    if score >= 75:\n",
+        "        count_pass = count_pass + 1\n",
+        "    print(\"running total:\", total)\n",
+        "\n",
+        "average = total / len(scores)\n",
+        "print(\"Total   :\", total)\n",
+        "print(\"Average :\", average)\n",
+        "print(\"Scores >= 75:\", count_pass, \"of\", len(scores))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ZndVwF-mvDGQ"
+      },
+      "source": [
+        "#### Highest and lowest value"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ur7HMXcbvDGQ"
+      },
+      "source": [
+        "Start by assuming the **first element** is the best so far. Compare every element with it; when you find a better one, it becomes the new \"best so far\"."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 24,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "88Co8qH5vDGQ",
+        "outputId": "a49d74d8-33e3-46e9-caed-847c0981b665"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Highest: 90\n",
+            "Lowest : 65\n",
+            "Built-in check: 90 65\n"
+          ]
+        }
+      ],
+      "source": [
+        "# highest_lowest.py\n",
+        "scores = [80, 65, 90, 75, 70]\n",
+        "\n",
+        "highest = scores[0]          # best so far (assume the first one)\n",
+        "lowest = scores[0]\n",
+        "for score in scores:\n",
+        "    if score > highest:\n",
+        "        highest = score\n",
+        "    if score < lowest:\n",
+        "        lowest = score\n",
+        "\n",
+        "print(\"Highest:\", highest)\n",
+        "print(\"Lowest :\", lowest)\n",
+        "print(\"Built-in check:\", max(scores), min(scores))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aet2PHlZvDGR"
+      },
+      "source": [
+        "#### Not only the value, but the position"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_cYqdYM1vDGR"
+      },
+      "source": [
+        "`max()` tells you the highest temperature but not **which day** it was. To get that, remember the **index** of the best element instead of its value; the value is then `temps[pos_max]`.\n",
+        "\n",
+        "| index | 0   | 1   | 2   | 3   | 4   |\n",
+        "| ----- | --- | --- | --- | --- | --- |\n",
+        "| temps | 28  | 31  | 30  | 33  | 29  |\n",
+        "\n",
+        "The highest value, 33, sits at index 3, which is day 4."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 25,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "g_3Vf77vvDGR",
+        "outputId": "7cf7f68e-adbe-4d25-e2ce-cf0bee66ea04"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Hottest value: 33 °C\n",
+            "Found at index 3 = day 4\n"
+          ]
+        }
+      ],
+      "source": [
+        "# position_of_max.py\n",
+        "temps = [28, 31, 30, 33, 29]    # temperature (°C), day 1 to day 5\n",
+        "\n",
+        "pos_max = 0                      # position of the best so far\n",
+        "for i in range(len(temps)):\n",
+        "    if temps[i] > temps[pos_max]:\n",
+        "        pos_max = i              # keep the POSITION, not just the value\n",
+        "\n",
+        "print(\"Hottest value:\", temps[pos_max], \"°C\")\n",
+        "print(\"Found at index\", pos_max, \"= day\", pos_max + 1)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "1heSX6k9vDGS"
+      },
+      "source": [
+        "> **Index and day number**\n",
+        ">\n",
+        "> Day _n_ is at index `n - 1`. When you print for people, show `i + 1`. If two elements tie for the\n",
+        "> highest value, `>` keeps the first one; `>=` would keep the last one."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "jIM65_A2vDGS"
+      },
+      "source": [
+        "#### Linear search: stop at the first match"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MG9x1H6XvDGT"
+      },
+      "source": [
+        "A **linear search** checks the elements one by one and stops with `break` at the first one that matches, so the rest need not be checked. Keep the **index** where you stopped, or `None` if nothing matched."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 26,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "kUXjSUY5vDGT",
+        "outputId": "d7765037-4fe4-4416-d35b-991f5108b250"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "First day above 32 °C: index 3\n",
+            "Elements checked: 4 of 5\n",
+            "True\n",
+            "3\n"
+          ]
+        }
+      ],
+      "source": [
+        "# linear_search.py\n",
+        "temps = [28, 31, 30, 33, 29]\n",
+        "target = 32                       # first day hotter than 32 °C?\n",
+        "\n",
+        "found = None                      # None = \"nothing found (yet)\"\n",
+        "checks = 0\n",
+        "for i in range(len(temps)):\n",
+        "    checks = checks + 1\n",
+        "    if temps[i] > target:\n",
+        "        found = i\n",
+        "        break                     # stop at the first match\n",
+        "\n",
+        "print(\"First day above\", target, \"°C: index\", found)\n",
+        "print(\"Elements checked:\", checks, \"of\", len(temps))\n",
+        "\n",
+        "# Handy shortcuts\n",
+        "print(33 in temps)                # is 33 somewhere in the list?\n",
+        "print(temps.index(33))            # position of the first 33 (error if absent)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Zz2jj5dZvDGU"
+      },
+      "source": [
+        "#### Filtering: a new list of matching elements"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "m-SM6x8YvDGU"
+      },
+      "source": [
+        "**Filtering** builds a **new list** that contains only the elements meeting a condition. Start from an empty list and `append` each match."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 27,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "51I6ZziUvDGV",
+        "outputId": "67192c57-f0be-4047-828c-b3dcec692146"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Hot values  : [31, 30, 33]\n",
+            "How many    : 3\n",
+            "Hot days    : [2, 3, 4]\n",
+            "Same result? True\n"
+          ]
+        }
+      ],
+      "source": [
+        "# filtering.py\n",
+        "temps = [28, 31, 30, 33, 29]\n",
+        "\n",
+        "hot = []                          # the new list starts empty\n",
+        "for t in temps:\n",
+        "    if t >= 30:\n",
+        "        hot.append(t)\n",
+        "print(\"Hot values  :\", hot)\n",
+        "print(\"How many    :\", len(hot))\n",
+        "\n",
+        "# To keep the day numbers instead of the values, loop by position\n",
+        "hot_days = []\n",
+        "for i in range(len(temps)):\n",
+        "    if temps[i] >= 30:\n",
+        "        hot_days.append(i + 1)\n",
+        "print(\"Hot days    :\", hot_days)\n",
+        "\n",
+        "# Optional: the same filter as a list comprehension (a compact loop)\n",
+        "hot_again = [t for t in temps if t >= 30]\n",
+        "print(\"Same result?\", hot_again == hot)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "C30WEIh3vDGV"
+      },
+      "source": [
+        "`[expression for item in list if condition]` is a **list comprehension**. It is optional in this course: it gives exactly the same result as the loop with `append` above it."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Z8X3EaH8vDGW"
+      },
+      "source": [
+        "#### Neighbours: daily change and moving average"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "SQyUMz7KvDGW"
+      },
+      "source": [
+        "Many questions compare an element with the one **before** it (how much did it change?) or with its neighbours (what is the average of the last 3 days?). We need the index `i` for that. Here are 7 days of temperature:\n",
+        "\n",
+        "| index | 0   | 1   | 2   | 3   | 4   | 5   | 6   |\n",
+        "| ----- | --- | --- | --- | --- | --- | --- | --- |\n",
+        "| temps | 28  | 31  | 30  | 33  | 29  | 27  | 32  |\n",
+        "\n",
+        "**Daily change**: today minus yesterday. Day 1 has no yesterday, so the loop starts at index **1**.\n",
+        "\n",
+        "**Moving average**: the average of a window that slides one step at a time. A 3-day window ending at index 2 covers indices 0, 1, 2; the next covers 1, 2, 3; and so on. 7 values give 7 - 3 + 1 = **5** averages."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 28,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "LvD_GoyYvDGX",
+        "outputId": "2a6d7542-e9c4-450f-cec8-5314cbdb315b"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "day 2: 31 °C, change +3\n",
+            "day 3: 30 °C, change -1\n",
+            "day 4: 33 °C, change +3\n",
+            "day 5: 29 °C, change -4\n",
+            "day 6: 27 °C, change -2\n",
+            "day 7: 32 °C, change +5\n",
+            "3-day averages: [29.7, 31.3, 30.7, 29.7, 29.3]\n",
+            "7 values -> 5 averages\n"
+          ]
+        }
+      ],
+      "source": [
+        "# neighbours.py\n",
+        "temps = [28, 31, 30, 33, 29, 27, 32]\n",
+        "\n",
+        "# Daily change: start at index 1 because we look at i - 1\n",
+        "for i in range(1, len(temps)):\n",
+        "    change = temps[i] - temps[i - 1]\n",
+        "    print(f\"day {i + 1}: {temps[i]} °C, change {change:+d}\")\n",
+        "\n",
+        "# 3-day moving average: window = the 3 values ending at index i\n",
+        "avg3 = []\n",
+        "for i in range(2, len(temps)):\n",
+        "    window = temps[i - 2 : i + 1]\n",
+        "    avg3.append(round(sum(window) / 3, 1))\n",
+        "\n",
+        "print(\"3-day averages:\", avg3)\n",
+        "print(len(temps), \"values ->\", len(avg3), \"averages\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_HP6PnOvvDGX"
+      },
+      "source": [
+        "> **Activity 6G: Change the window**\n",
+        ">\n",
+        "> Edit the block: make it a **5-day** moving average (start the loop at index 4, slice `temps[i - 4\n",
+        "> : i + 1]`, divide by 5). How many averages do you get for 7 values? Why?"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "wudsL7RFvDGX"
+      },
+      "source": [
+        "#### Loops on the 30-day data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "oXwvCPJWvDGX"
+      },
+      "source": [
+        "The same code works for 30 elements unchanged: the list is just longer. The accumulator and \"position of the highest value\" on 30 days:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 29,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mMm5QQIbvDGY",
+        "outputId": "8a28e409-0ee8-46b2-9681-a22631dd1e2d"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Energy this month: 175,404 MWh\n",
+            "Average          : 5,847 MWh/day\n",
+            "Highest          : day 24 (6,135 MWh)\n",
+            "Lowest           : day 17 (3,592 MWh)\n",
+            "Built-ins        : 175404 6135 3592\n"
+          ]
+        }
+      ],
+      "source": [
+        "# traversal.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,\n",
+        "]\n",
+        "\n",
+        "total = 0\n",
+        "i_max = 0\n",
+        "i_min = 0\n",
+        "for i in range(len(energy)):\n",
+        "    total = total + energy[i]           # accumulator\n",
+        "    if energy[i] > energy[i_max]:\n",
+        "        i_max = i                        # keep the POSITION, not just the value\n",
+        "    if energy[i] < energy[i_min]:\n",
+        "        i_min = i\n",
+        "\n",
+        "print(f\"Energy this month: {total:,} MWh\")\n",
+        "print(f\"Average          : {total / len(energy):,.0f} MWh/day\")\n",
+        "print(f\"Highest          : day {i_max + 1} ({energy[i_max]:,} MWh)\")\n",
+        "print(f\"Lowest           : day {i_min + 1} ({energy[i_min]:,} MWh)\")\n",
+        "print(\"Built-ins        :\", sum(energy), max(energy), min(energy))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "p5fk5R0ovDGY"
+      },
+      "source": [
+        "> **Built-in functions vs. your own loop**\n",
+        ">\n",
+        "> `sum()`, `max()`, and `min()` are shorter, but they don't tell you **which day** the extreme value\n",
+        "> happened. A loop over indices gives you the position as well."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "tgbEAHcyvDGY"
+      },
+      "source": [
+        "Then linear search and filtering (days below a target of 5,800 MWh):"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 30,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "0rf5NekNvDGY",
+        "outputId": "8834572d-54b5-4f38-f6fb-4ffacd0ee288"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "First day below target: 1\n",
+            "Days below target: [1, 7, 8, 14, 15, 17, 21, 22, 28, 29]\n",
+            "Same result? True\n",
+            "Target met on 20 of 30 days\n"
+          ]
+        }
+      ],
+      "source": [
+        "# search_filter.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,\n",
+        "]\n",
+        "target = 5800\n",
+        "\n",
+        "# Linear search: first day below target\n",
+        "first_day = None\n",
+        "for i in range(len(energy)):\n",
+        "    if energy[i] < target:\n",
+        "        first_day = i + 1\n",
+        "        break\n",
+        "print(\"First day below target:\", first_day)\n",
+        "\n",
+        "# Filtering with an ordinary loop\n",
+        "short_days = []\n",
+        "for i in range(len(energy)):\n",
+        "    if energy[i] < target:\n",
+        "        short_days.append(i + 1)\n",
+        "print(\"Days below target:\", short_days)\n",
+        "\n",
+        "# The same filter as a list comprehension\n",
+        "short_days_2 = [i + 1 for i in range(len(energy)) if energy[i] < target]\n",
+        "print(\"Same result?\", short_days == short_days_2)\n",
+        "print(f\"Target met on {len(energy) - len(short_days)} of {len(energy)} days\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "1Nr7Osm7vDGZ"
+      },
+      "source": [
+        "Finally the neighbour patterns. The weekend pattern makes energy rise and fall every 7 days; a **7-day moving average** smooths it out, so changes that really are unusual stand out. With 7 values per window, 30 days give 30 - 7 + 1 = 24 averages."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 31,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "GXDaIMJSvDGZ",
+        "outputId": "d167d026-83ee-4eb8-cf41-b4933699abda"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Day 17: -41.1% versus the day before, investigate\n",
+            "24 moving-average values (30 days of data)\n",
+            "Lowest 5,572 MWh/day, highest 5,948 MWh/day\n"
+          ]
+        }
+      ],
+      "source": [
+        "# sequential.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,\n",
+        "]\n",
+        "\n",
+        "# Daily change: start at index 1 because each value is compared with the one before\n",
+        "for i in range(1, len(energy)):\n",
+        "    change = (energy[i] - energy[i - 1]) / energy[i - 1] * 100\n",
+        "    if change < -20:\n",
+        "        print(f\"Day {i + 1}: {change:+.1f}% versus the day before, investigate\")\n",
+        "\n",
+        "# 7-day moving average\n",
+        "avg_7 = []\n",
+        "for i in range(6, len(energy)):\n",
+        "    window = energy[i - 6 : i + 1]\n",
+        "    avg_7.append(sum(window) / 7)\n",
+        "\n",
+        "print(f\"{len(avg_7)} moving-average values ({len(energy)} days of data)\")\n",
+        "print(f\"Lowest {min(avg_7):,.0f} MWh/day, highest {max(avg_7):,.0f} MWh/day\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "kbYyrwmhvDGZ"
+      },
+      "source": [
+        "> **Activity 6H: Explain the drop**\n",
+        ">\n",
+        "> Energy on day 17 fell by more than 40%. In groups, write down three operational reasons that could\n",
+        "> explain it and what data you would check to confirm each one. (Hint: look at `run_hours[16]` in\n",
+        "> the 30-day data section, and at the weekday block below.)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Q9UTK2CqvDGa"
+      },
+      "source": [
+        "#### Weekdays and weekends"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XwEak2ILvDGa"
+      },
+      "source": [
+        "Short loops on parallel arrays: find the days without full operation, split weekdays and weekends (day names with the remainder `i % 7`), then compare their averages."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 32,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-64y2fT1vDGa",
+        "outputId": "684e96a3-aad8-4f0a-ea52-f1e8ab16ef63"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Day 17 : 18 h, 3592 MWh\n",
+            "Weekday average: 5968 MWh\n",
+            "Weekend average: 5564 MWh\n"
+          ]
+        }
+      ],
+      "source": [
+        "# weekday_weekend.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,\n",
+        "]\n",
+        "days = list(range(1, 31))\n",
+        "run_hours = [24] * 30\n",
+        "run_hours[16] = 18\n",
+        "DAY_NAMES = [\"Sun\", \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\"]\n",
+        "\n",
+        "for i in range(len(energy)):\n",
+        "    if run_hours[i] < 24:\n",
+        "        print(\"Day\", days[i], \":\", run_hours[i], \"h,\", energy[i], \"MWh\")\n",
+        "\n",
+        "weekday = []\n",
+        "weekend = []\n",
+        "for i in range(len(energy)):\n",
+        "    if DAY_NAMES[i % 7] == \"Sat\" or DAY_NAMES[i % 7] == \"Sun\":\n",
+        "        weekend.append(energy[i])\n",
+        "    else:\n",
+        "        weekday.append(energy[i])\n",
+        "\n",
+        "print(\"Weekday average:\", round(sum(weekday) / len(weekday)), \"MWh\")\n",
+        "print(\"Weekend average:\", round(sum(weekend) / len(weekend)), \"MWh\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "dGMv7QCOvDGb"
+      },
+      "source": [
+        "#### A text bar chart"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "YsnuBKd3vDGb"
+      },
+      "source": [
+        "Text can be multiplied: `\"█\" * 5` gives 5 blocks. One block = 100 MWh above 3,000 MWh, so the differences between days show. Find day 17: its bar is the shortest."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 33,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "zatx3B03vDGc",
+        "outputId": "0a00712a-eb80-4688-d216-defcf7bd7495"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "1 Sun █████████████████████████ 5576\n",
+            "2 Mon ██████████████████████████████ 6098\n",
+            "3 Tue ██████████████████████████████ 6078\n",
+            "4 Wed ██████████████████████████████ 6095\n",
+            "5 Thu ██████████████████████████████ 6074\n",
+            "6 Fri ██████████████████████████████ 6077\n",
+            "7 Sat █████████████████████████ 5564\n",
+            "8 Sun █████████████████████████ 5552\n",
+            "9 Mon ███████████████████████████████ 6100\n",
+            "10 Tue ██████████████████████████████ 6083\n",
+            "11 Wed ██████████████████████████████ 6097\n",
+            "12 Thu ██████████████████████████████ 6089\n",
+            "13 Fri ██████████████████████████████ 6066\n",
+            "14 Sat █████████████████████████ 5533\n",
+            "15 Sun █████████████████████████ 5566\n",
+            "16 Mon ██████████████████████████████ 6097\n",
+            "17 Tue █████ 3592\n",
+            "18 Wed ██████████████████████████████ 6059\n",
+            "19 Thu ███████████████████████████████ 6100\n",
+            "20 Fri ██████████████████████████████ 6098\n",
+            "21 Sat █████████████████████████ 5565\n",
+            "22 Sun █████████████████████████ 5571\n",
+            "23 Mon ███████████████████████████████ 6103\n",
+            "24 Tue ███████████████████████████████ 6135\n",
+            "25 Wed ██████████████████████████████ 6065\n",
+            "26 Thu ██████████████████████████████ 6071\n",
+            "27 Fri ██████████████████████████████ 6086\n",
+            "28 Sat █████████████████████████ 5577\n",
+            "29 Sun █████████████████████████ 5575\n",
+            "30 Mon ██████████████████████████████ 6062\n"
+          ]
+        }
+      ],
+      "source": [
+        "# bar_chart.py\n",
+        "energy = [\n",
+        "    5576, 6098, 6078, 6095, 6074, 6077, 5564, 5552, 6100, 6083,\n",
+        "    6097, 6089, 6066, 5533, 5566, 6097, 3592, 6059, 6100, 6098,\n",
+        "    5565, 5571, 6103, 6135, 6065, 6071, 6086, 5577, 5575, 6062,\n",
+        "]\n",
+        "DAY_NAMES = [\"Sun\", \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\"]\n",
+        "\n",
+        "for i in range(len(energy)):\n",
+        "    blocks = (energy[i] - 3000) // 100\n",
+        "    print(i + 1, DAY_NAMES[i % 7], \"█\" * blocks, energy[i])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aMMzXNi4vDGc"
+      },
+      "source": [
+        "> **Activity 6I: Your own array**\n",
+        ">\n",
+        "> Make a list `temps` with 7 daily temperatures (any values). Then: (1) show the first 3 days and\n",
+        "> the last 2 days with slicing; (2) add one day with `append`, then take it out again with `pop`;\n",
+        "> (3) show a sorted version with `sorted` without changing `temps`; (4) compute the average and find\n",
+        "> the highest temperature **and which day** it was; (5) build a new list of the temperatures above\n",
+        "> the average."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XrXer2NLvDGd"
+      },
+      "source": [
+        "> **Why parallel arrays work**\n",
+        ">\n",
+        "> `days[i]`, `energy[i]`, and `run_hours[i]` always point to the same day because all three are\n",
+        "> built in the same day order. In Week 8, Pandas combines arrays like these into one table (a\n",
+        "> DataFrame)."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XmUEJ9RKvDGd"
+      },
+      "source": [
+        "### 2D lists: a table of values"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "HRHh89fxvDGd"
+      },
+      "source": [
+        "A **2D list** is a list whose elements are lists: a table with one inner list per **row**. `table[row][column]` reads one cell. Remember that both counts start at 0.\n",
+        "\n",
+        "| marks      | col 0 (test 1) | col 1 (test 2) | col 2 (test 3) |\n",
+        "| ---------- | -------------- | -------------- | -------------- |\n",
+        "| row 0 Ana  | 80             | 70             | 90             |\n",
+        "| row 1 Budi | 65             | 75             | 60             |\n",
+        "| row 2 Cici | 90             | 85             | 95             |"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 34,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "MiQphps8vDGd",
+        "outputId": "877f3e73-2437-492c-aad9-03cb7b8db3dd"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[65, 75, 60]\n",
+            "60\n",
+            "rows: 3  columns: 3\n",
+            "Student 1 total: 240\n",
+            "Student 2 total: 200\n",
+            "Student 3 total: 270\n",
+            "Test 1 scores: [80, 65, 90]\n"
+          ]
+        }
+      ],
+      "source": [
+        "# list_2d.py\n",
+        "marks = [\n",
+        "    [80, 70, 90],     # row 0: Ana\n",
+        "    [65, 75, 60],     # row 1: Budi\n",
+        "    [90, 85, 95],     # row 2: Cici\n",
+        "]\n",
+        "\n",
+        "print(marks[1])        # a whole row\n",
+        "print(marks[1][2])     # row 1, column 2: Budi's test 3\n",
+        "print(\"rows:\", len(marks), \" columns:\", len(marks[0]))\n",
+        "\n",
+        "# A total for each row (each student)\n",
+        "for r in range(len(marks)):\n",
+        "    print(\"Student\", r + 1, \"total:\", sum(marks[r]))\n",
+        "\n",
+        "# A column: the same index in every row (everybody's test 1)\n",
+        "test1 = []\n",
+        "for row in marks:\n",
+        "    test1.append(row[0])\n",
+        "print(\"Test 1 scores:\", test1)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "CvfhDb_kvDGe"
+      },
+      "source": [
+        "> **Activity 6J: Read the table**\n",
+        ">\n",
+        "> Without running the code: which expression gives Cici's test 2 score? Which gives the number of\n",
+        "> tests (columns)? Check your answers by editing the block."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "WSL0nGmyvDGe"
+      },
+      "source": [
+        "### Common mistakes"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "rLch_VyXvDGe"
+      },
+      "source": [
+        "| Mistake                               | What happens                                | Fix                                                     |\n",
+        "| ------------------------------------- | ------------------------------------------- | ------------------------------------------------------- |\n",
+        "| Off by one: day _n_ at index `n`      | you get the next day, or an IndexError      | day _n_ is at index `n - 1`                             |\n",
+        "| Using index `len(a)`                  | `IndexError: list index out of range`       | the last index is `len(a) - 1` (or `a[-1]`)             |\n",
+        "| `range(1, len(a))` by accident        | the first element is skipped                | start at 0, unless you really need the previous element |\n",
+        "| Changing a list while looping over it | some elements are skipped                   | build a new list (filter) instead                       |\n",
+        "| Forgetting `append` returns nothing   | `a = a.append(5)` makes `a` equal to `None` | just call `a.append(5)`                                 |\n",
+        "| Expecting a slice to change the list  | `a[1:3]` is a new list; `a` is unchanged    | assign the slice to a variable                          |\n",
+        "\n",
+        "The fourth mistake is sneaky because nothing crashes. See it for yourself:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 35,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "l2SzgpInvDGf",
+        "outputId": "407dda4c-28e2-4ac9-e4a9-fd7d4a570a63"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "wrong: [1, 2, 3]\n",
+            "right: [1, 3]\n"
+          ]
+        }
+      ],
+      "source": [
+        "# modify_while_looping.py\n",
+        "nums = [1, 2, 2, 3]\n",
+        "\n",
+        "# Wrong: removing from the list while looping over it\n",
+        "for x in nums:\n",
+        "    if x == 2:\n",
+        "        nums.remove(x)\n",
+        "print(\"wrong:\", nums)           # one 2 survived!\n",
+        "\n",
+        "# Right: build a new list with only what you want to keep\n",
+        "nums = [1, 2, 2, 3]\n",
+        "kept = []\n",
+        "for x in nums:\n",
+        "    if x != 2:\n",
+        "        kept.append(x)\n",
+        "print(\"right:\", kept)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "zZJcPwKevDGf"
+      },
+      "source": [
+        "### Recap"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "m-_LAdKLvDGf"
+      },
+      "source": [
+        "Tick each item you can do **without looking** at the notes:\n",
+        "\n",
+        "- [ ] I can explain what an array is, how it is stored in memory, and its advantages and disadvantages.\n",
+        "- [ ] I can explain an array as numbered boxes under one name, with the index starting at 0.\n",
+        "- [ ] I can create a list, and read `a[0]`, `a[-1]`, and the last element with `a[len(a) - 1]`.\n",
+        "- [ ] I can predict what `a[1:4]`, `a[:3]`, and `a[-2:]` return.\n",
+        "- [ ] I can change an element and use `append`, `insert`, `remove`, `pop`, and `in`.\n",
+        "- [ ] I know why `a[len(a)]` raises an `IndexError`.\n",
+        "- [ ] I can loop with for-each and with `range(len(a))`, and I know when to use which.\n",
+        "- [ ] I can write an accumulator loop for a total, an average, and a count.\n",
+        "- [ ] I can find the highest value **and its position**.\n",
+        "- [ ] I can write a linear search with `break` and a filter that builds a new list.\n",
+        "- [ ] I can compute a daily change and a moving average, and explain why the loop starts where it does.\n",
+        "- [ ] I can read a cell of a 2D list with `table[row][column]`.\n",
+        "- [ ] I can slice a list, including with a step (`[::7]`) and reversed (`[::-1]`).\n",
+        "- [ ] I can use `del`, `extend`, `+`, `index`, `count`, and I know the difference between `sorted` and `sort`.\n",
+        "- [ ] I know that `b = a` is not a copy, and I use `a.copy()` to copy a list.\n",
+        "- [ ] I can apply all of this to a list of daily energy values."
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
