@@ -2521,6 +2521,168 @@
       ]
     },
     {
+      "cell_type": "code",
+      "source": [
+        "skor = [80, 65, 90, 75, 70, 85]\n",
+        "\n",
+        "# (1) Skor pertama dan skor terakhir (pakai indeks negatif)\n",
+        "skor_pertama = skor[0]\n",
+        "skor_terakhir = skor[-1]\n",
+        "print(f\"1. Skor pertama: {skor_pertama}, Skor terakhir: {skor_terakhir}\")\n",
+        "\n",
+        "# (2) Rata-rata skor\n",
+        "rata_rata = sum(skor) / len(skor)\n",
+        "print(f\"2. Rata-rata: {rata_rata:.2f}\")\n",
+        "\n",
+        "# (3) Jumlah skor di atas rata-rata\n",
+        "di_atas_rata = [s for s in skor if s > rata_rata]\n",
+        "print(f\"3. Banyak skor di atas rata-rata: {len(di_atas_rata)} ({di_atas_rata})\")\n",
+        "\n",
+        "# (4) Posisi skor terendah sebagai nomor mahasiswa (mulai dari 1)\n",
+        "skor_terendah = min(skor)\n",
+        "idx_terendah = skor.index(skor_terendah)  # indeks mulai dari 0\n",
+        "no_mahasiswa = idx_terendah + 1\n",
+        "print(f\"4. Skor terendah: {skor_terendah}, Mahasiswa ke-{no_mahasiswa}\")\n",
+        "\n",
+        "# (5) List baru dengan setiap skor ditambah 5\n",
+        "skor_plus_5 = [s + 5 for s in skor]\n",
+        "print(f\"5. Skor + 5: {skor_plus_5}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "hf28R1DsmQDw",
+        "outputId": "dd96a8e9-cd9f-45d8-b084-baeba74bb92d"
+      },
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "1. Skor pertama: 80, Skor terakhir: 85\n",
+            "2. Rata-rata: 77.50\n",
+            "3. Banyak skor di atas rata-rata: 3 ([80, 90, 85])\n",
+            "4. Skor terendah: 65, Mahasiswa ke-2\n",
+            "5. Skor + 5: [85, 70, 95, 80, 75, 90]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Contoh data energi 30 hari (ganti sesuai blok kode di modul)\n",
+        "energi = [\n",
+        "    120, 135, 128, 140, 150, 110, 95,\n",
+        "    130, 142, 138, 125, 133, 145, 136,\n",
+        "    118, 122, 129, 134, 141, 127, 115,\n",
+        "    132, 139, 144, 137, 126, 121, 131,\n",
+        "    135, 140\n",
+        "]\n",
+        "\n",
+        "# Validasi panjang data (opsional, biar aman kalau datanya pas 30 hari)\n",
+        "total_energi = sum(energi)\n",
+        "rata_bulanan = total_energi / len(energi)\n",
+        "\n",
+        "print(\"=== LAPORAN PRODUKSI BULANAN ===\")\n",
+        "print(f\"Total energi      : {total_energi}\")\n",
+        "print(f\"Rata-rata energi  : {rata_bulanan:.2f}\")\n",
+        "\n",
+        "# Pasangkan (nomor_hari, nilai) mulai hari ke-1\n",
+        "hari_nilai = list(enumerate(energi, start=1))\n",
+        "\n",
+        "# Urutkan dari terbesar ke terkecil untuk 3 hari tertinggi\n",
+        "tertinggi_3 = sorted(hari_nilai, key=lambda x: x[1], reverse=True)[:3]\n",
+        "print(\"\\n3 Hari Tertinggi:\")\n",
+        "for hari, nilai in tertinggi_3:\n",
+        "    print(f\"  - Hari ke-{hari}: {nilai}\")\n",
+        "\n",
+        "# Urutkan dari terkecil ke terbesar untuk 3 hari terendah\n",
+        "terendah_3 = sorted(hari_nilai, key=lambda x: x[1])[:3]\n",
+        "print(\"\\n3 Hari Terendah:\")\n",
+        "for hari, nilai in terendah_3:\n",
+        "    print(f\"  - Hari ke-{hari}: {nilai}\")\n",
+        "\n",
+        "# Jumlah hari di bawah target yang dimasukkan user\n",
+        "target = float(input(\"\\nMasukkan target harian: \"))\n",
+        "hari_bawah_target = [hari for hari, nilai in hari_nilai if nilai < target]\n",
+        "print(f\"Jumlah hari di bawah target ({target}): {len(hari_bawah_target)} -> Hari {hari_bawah_target}\")\n",
+        "\n",
+        "# Setiap hari yang rata-rata bergerak 7 harinya turun di bawah 97% rata-rata bulanan\n",
+        "batas_ma7 = 0.97 * rata_bulanan\n",
+        "hari_ma7_rendah = []\n",
+        "\n",
+        "print(f\"\\nBatas 97% rata-rata bulanan: {batas_ma7:.2f}\")\n",
+        "for i in range(len(energi)):\n",
+        "    # Rata-rata bergerak 7 hari sampai hari ke-(i+1)\n",
+        "    # Jika belum genap 7 hari (i < 6), ambil dari indeks 0 sampai i (atau sesuaikan aturan modul)\n",
+        "    awal = max(0, i - 6)\n",
+        "    window = energi[awal:i + 1]\n",
+        "    ma7 = sum(window) / len(window)\n",
+        "    if ma7 < batas_ma7:\n",
+        "        hari_ma7_rendah.append((i + 1, round(ma7, 2)))\n",
+        "\n",
+        "print(\"Hari dengan MA-7 < 97% rata-rata bulanan (hari, MA-7):\")\n",
+        "print(hari_ma7_rendah)\n",
+        "\n",
+        "# Total energi per minggu (minggu 1-4, ditambah sisa hari)\n",
+        "print(\"\\nTotal Energi per Minggu:\")\n",
+        "for m in range(4):\n",
+        "    awal = m * 7\n",
+        "    akhir = awal + 7\n",
+        "    print(f\"  - Minggu {m + 1} (hari {awal + 1}-{akhir}): {sum(energi[awal:akhir])}\")\n",
+        "\n",
+        "if len(energi) > 28:\n",
+        "    sisa = energi[28:]\n",
+        "    print(f\"  - Sisa hari (hari 29-{len(energi)}): {sum(sisa)}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "w8yfl-T_oQfV",
+        "outputId": "d8129a35-9ebc-4cea-e49a-9b5e83896b9f"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "=== LAPORAN PRODUKSI BULANAN ===\n",
+            "Total energi      : 3918\n",
+            "Rata-rata energi  : 130.60\n",
+            "\n",
+            "3 Hari Tertinggi:\n",
+            "  - Hari ke-5: 150\n",
+            "  - Hari ke-13: 145\n",
+            "  - Hari ke-24: 144\n",
+            "\n",
+            "3 Hari Terendah:\n",
+            "  - Hari ke-7: 95\n",
+            "  - Hari ke-6: 110\n",
+            "  - Hari ke-21: 115\n",
+            "\n",
+            "Masukkan target harian: 125.0\n",
+            "Jumlah hari di bawah target (125.0): 7 -> Hari [1, 6, 7, 15, 16, 21, 27]\n",
+            "\n",
+            "Batas 97% rata-rata bulanan: 126.68\n",
+            "Hari dengan MA-7 < 97% rata-rata bulanan (hari, MA-7):\n",
+            "[(1, 120.0), (7, 125.43), (12, 124.71), (21, 126.57)]\n",
+            "\n",
+            "Total Energi per Minggu:\n",
+            "  - Minggu 1 (hari 1-7): 878\n",
+            "  - Minggu 2 (hari 8-14): 949\n",
+            "  - Minggu 3 (hari 15-21): 886\n",
+            "  - Minggu 4 (hari 22-28): 930\n",
+            "  - Sisa hari (hari 29-30): 275\n"
+          ]
+        }
+      ]
+    },
+    {
       "cell_type": "markdown",
       "metadata": {
         "id": "zZJcPwKevDGf"
